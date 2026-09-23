@@ -17,7 +17,15 @@ The structure is inspired by the published [Moral Machine experiment](https://do
 5. The server validates the IDs and calls Jev with the canonical case descriptions and 13 named `choice` questions. **Participant selections are not in the Jev request.**
 6. The server checks every model answer and returns the reduced A/B distributions. The browser computes and displays the comparison.
 
-Choices are held in browser memory for that page session; this app does not write them to a database or browser storage. The server does not persist them. Restarting the exercise clears them.
+Choices are held in browser memory while the participant works. A completed evaluation is saved by the local server as a report. Restarting the exercise clears the in-progress choices but does not remove earlier reports. The app does not use browser storage or a database.
+
+## Saved run reports
+
+For each successful evaluation, the server writes `reports/<uuid>.json` with restrictive local file permissions. Each report records an ISO 8601 timestamp, provider and model ID, the exact scenario descriptions and A/B outcomes shown in that run, the participant's ordered choices, the validated Jev or sample answers, and the computed agreement count and mean selected probability. The scenarios are copied into the report at evaluation time; a later change to `scenarios.js` does not rewrite older reports. Sample results remain labeled `sample`, so they cannot be mistaken for Jev observations. Failed or incomplete evaluations do not create reports.
+
+The browser lists previous runs through `GET /api/runs`, reopens a full report through `GET /api/runs/:id`, and offers a JSON download. `POST /api/evaluate` returns the report it just saved. Reports are local files excluded from Git. They contain participant decisions, so review a downloaded report before sharing it. There is no name, account, IP address, or API key in the report schema. The files do not include the raw provider response, usage metadata, or billing data.
+
+The published Moral Machine site generates variable cases. **This demo still presents the same 13 original cases on each run.** The snapshot format is prepared for future variation, but this version does not claim to generate distinct cases or measure longitudinal change across a randomized sample.
 
 ## Complete demo case inventory
 
@@ -72,3 +80,5 @@ When no provider key is present, the server returns a fixed set of illustrative 
 ## Verification record
 
 During initial construction on September 22, 2026, a local browser run completed all 13 cases and displayed a real OpenRouter Jev response; the server returned 13 answer objects. An incomplete submission returned HTTP 400. After the English-language and documentation update, a second browser session completed all 13 cases against OpenRouter. Its result view showed 13 Jev evaluations, 6 matches, and a 48% mean probability for that one illustrative participant sequence; these figures are verification evidence, not study findings. The interface was visually checked at a narrow viewport. After any material change to scenarios, prompts, or code, rerun the checks in the repository README and complete a new live browser session before updating this record.
+
+After adding reports, a new 13-case browser run against OpenRouter produced a local JSON file with 13 scenario snapshots, 13 choices, and 13 validated answers. The history listed the run and reopened it after a page reload. The downloaded-report endpoint returned HTTP 200; an invalid run ID and `/.env` both returned HTTP 404. The report directory and file were verified as mode `0700` and `0600`, respectively, and both remain ignored by Git. The interface was visually checked at a narrow viewport.

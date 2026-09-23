@@ -3,8 +3,10 @@ import { readFileSync, existsSync } from 'node:fs';
 import { extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { scenarios, scenarioState, validateChoices } from './scenarios.js';
+import { getRun, listRuns, saveRun } from './runs.js';
 
 const root = fileURLToPath(new URL('.', import.meta.url));
+const reportsDirectory = join(root, 'reports');
 if (existsSync(join(root, '.env'))) process.loadEnvFile(join(root, '.env'));
 
 const port = Number(process.env.PORT || 3000);
@@ -12,6 +14,7 @@ const host = process.env.HOST || '127.0.0.1';
 const openRouterKey = process.env.OPENROUTER_API_KEY;
 const gatewayKey = process.env.AI_GATEWAY_API_KEY;
 const provider = openRouterKey ? 'openrouter' : gatewayKey ? 'vercel' : 'sample';
+const model = provider === 'openrouter' ? 'typesafe/jev-1.13' : provider === 'vercel' ? 'typesafe-ai/jev' : null;
 
 const sampleProbabilities = [
   0.49, 0.51, 0.24, 0.27, 0.5, 0.51, 0.49,
@@ -52,7 +55,6 @@ async function callJev() {
   const url = isOpenRouter
     ? 'https://openrouter.ai/api/alpha/decisions'
     : 'https://ai-gateway.vercel.sh/v1/evaluate';
-  const model = isOpenRouter ? 'typesafe/jev-1.13' : 'typesafe-ai/jev';
   const key = isOpenRouter ? openRouterKey : gatewayKey;
   const response = await fetch(url, {
     method: 'POST',
@@ -102,6 +104,13 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'GET' && url.pathname === '/api/scenarios') {
       return json(res, 200, { scenarios, provider });
     }
+    if (req.method === 'GET' && url.pathname === '/api/runs') {
+      return json(res, 200, { runs: listRuns(reportsDirectory) });
+    }
+    if (req.method === 'GET' && url.pathname.startsWith('/api/runs/')) {
+      const report = getRun(reportsDirectory, url.pathname.slice('/api/runs/'.length));
+      return report ? json(res, 200, report) : json(res, 404, { error: 'Run not found.' });
+    }
     if (req.method === 'POST' && url.pathname === '/api/evaluate') {
       if (!req.headers['content-type']?.startsWith('application/json')) return json(res, 415, { error: 'Expected application/json.' });
       let input;
@@ -109,11 +118,11 @@ const server = http.createServer(async (req, res) => {
       catch (error) { return json(res, 400, { error: error.message === 'Request body is too large.' ? error.message : 'Invalid JSON request.' }); }
       if (!validateChoices(input?.choices)) return json(res, 400, { error: 'Exactly 13 valid decisions are required, in order.' });
       const evaluations = provider === 'sample' ? sampleAnswers() : await callJev();
-      return json(res, 200, {
-        provider,
-        mode: provider === 'sample' ? 'sample' : 'jev',
-        evaluations,
+      const report = saveRun(reportsDirectory, {
+        provider, mode: provider === 'sample' ? 'sample' : 'jev', model,
+        scenarios, choices: input.choices, evaluations,
       });
+      return json(res, 200, report);
     }
     if (req.method !== 'GET') return json(res, 405, { error: 'Method not allowed.' });
     const path = normalize(url.pathname === '/' ? '/index.html' : url.pathname);

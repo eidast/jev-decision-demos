@@ -40,12 +40,18 @@
       </section>
 
       <section id="results" class="results hidden" aria-labelledby="resultsTitle">
-        <div class="results-head"><p class="section-kicker">SESSION ANALYSIS</p><h2 id="resultsTitle">Your decisions in context</h2><p id="resultSubhead"></p></div>
+        <div class="results-head"><p class="section-kicker">SAVED RUN</p><h2 id="resultsTitle">Your decisions in context</h2><p id="resultSubhead"></p><p id="reportMeta" class="report-meta"></p></div>
         <div id="summaryCards" class="summary-grid"></div>
         <div class="results-toolbar"><h3>Scenario comparison</h3><p id="barExplanation">The bar shows the distribution between the two options.</p></div>
         <div id="resultRows" class="result-rows"></div>
         <div class="result-note"><strong>How to read these numbers.</strong> Jev answers one bounded question per case. Its probabilities are not crash frequencies, human votes, or an ethical rule. A high probability can still favor an outcome you judge unacceptable.</div>
-        <button id="restartBtn" class="secondary-btn" type="button">Start again</button>
+        <div class="report-actions"><a id="downloadReport" class="secondary-btn" href="#" download>Download this report (JSON)</a><button id="restartBtn" class="secondary-btn" type="button">Start again</button></div>
+      </section>
+
+      <section id="history" class="history" aria-labelledby="historyTitle">
+        <div class="section-heading"><div><p class="section-kicker">LOCAL REPORTS</p><h2 id="historyTitle">Previous runs</h2></div></div>
+        <p class="history-intro">Each completed run saves its scenario wording, your choices, and the model's probabilities on this computer. Reports are never committed to Git.</p>
+        <div id="historyList" class="history-list" aria-live="polite">Loading saved runs…</div>
       </section>
     </main>
 

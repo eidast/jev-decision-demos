@@ -76,6 +76,8 @@ This repo uses the built-in Node.js `fetch` API to avoid a package dependency. A
 
 The `POST /api/evaluate` route validates an exact, ordered list of 13 participant choices against the server's case IDs. It accepts JSON only and limits the request body to 24,000 characters. The participant's selections affect the comparison metrics, not Jev's input.
 
+After validation, the server writes a local run report and returns that report to the browser. This adds the participant's choices and scenario snapshot to the local response while keeping the raw provider payload and credentials out of it. `GET /api/runs` returns report summaries, and `GET /api/runs/:id` returns one full saved report; see [the report specification](EXPERIMENT.md#saved-run-reports).
+
 ## Evaluation still needed for any real use
 
 The demo checks that Jev responds and that its values are displayed correctly. It does **not** establish moral validity, calibration on these dilemmas, stability across repeated calls, sensitivity to wording, or demographic fairness. A real decision workflow would need labeled examples, repeated measurements, defined error costs, thresholds chosen from those examples, and an explicit human or deterministic fallback. OpenRouter notes that there is no universal confidence threshold. [OpenRouter Jev guide](https://openrouter.ai/blog/tutorials/jev-vs-llm-when-to-use-each/).

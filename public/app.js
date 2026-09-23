@@ -7,6 +7,7 @@ const prevBtn = $('#prevBtn');
 const nextBtn = $('#nextBtn');
 const results = $('#results');
 const providerPill = $('#providerPill');
+const historyList = $('#historyList');
 
 let scenarios = [];
 let selections = [];
@@ -53,33 +54,72 @@ function renderScenario() {
 
 function pct(value) { return `${Math.round(value * 100)}%`; }
 
-function showResults(data) {
-  const evaluations = data.evaluations;
-  const agree = evaluations.filter((e, index) => e.choice === selections[index]).length;
-  const mean = evaluations.reduce((sum, e, index) => sum + e.probabilities[selections[index]], 0) / evaluations.length;
-  const isReal = data.mode === 'jev';
+function runDate(value) {
+  return new Date(value).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
+}
+
+function showResults(report) {
+  const { evaluations, scenarios: runScenarios, choices, summary } = report;
+  const isReal = report.mode === 'jev';
   $('#resultSubhead').textContent = isReal
-    ? `Jev evaluated all 13 cases through ${data.provider === 'openrouter' ? 'OpenRouter' : 'Vercel AI Gateway'}. Compare its most probable option with your choices.`
+    ? `Jev evaluated all ${evaluations.length} cases through ${report.provider === 'openrouter' ? 'OpenRouter' : 'Vercel AI Gateway'}. Compare its most probable option with your choices.`
     : 'Sample mode: these numbers are illustrative and do not come from Jev. Configure an API key for a live evaluation.';
+  $('#reportMeta').textContent = `Saved ${runDate(report.createdAt)} · Run ${report.id}`;
+  $('#downloadReport').href = `/api/runs/${encodeURIComponent(report.id)}`;
+  $('#downloadReport').download = `moral-machine-run-${report.id}.json`;
   $('#barExplanation').textContent = `The bar shows ${isReal ? "Jev's" : 'an illustrative'} probability distribution across the two options.`;
   $('#summaryCards').innerHTML = `
     <div class="summary-card"><strong>${evaluations.length}</strong><span>cases evaluated ${isReal ? 'by Jev' : 'in sample mode'}</span></div>
-    <div class="summary-card"><strong>${agree} / ${evaluations.length}</strong><span>choices matching ${isReal ? "Jev's" : 'the sample’s'} most probable option</span></div>
-    <div class="summary-card"><strong>${pct(mean)}</strong><span>mean probability assigned to your choices ${isReal ? 'by Jev' : 'in the sample'}</span></div>`;
+    <div class="summary-card"><strong>${summary.agreementCount} / ${evaluations.length}</strong><span>choices matching ${isReal ? "Jev's" : 'the sample’s'} most probable option</span></div>
+    <div class="summary-card"><strong>${pct(summary.meanSelectedProbability)}</strong><span>mean probability assigned to your choices ${isReal ? 'by Jev' : 'in the sample'}</span></div>`;
   $('#resultRows').innerHTML = evaluations.map((e, index) => {
-    const scenario = scenarios[index];
-    const user = selections[index].toUpperCase();
+    const scenario = runScenarios[index];
+    const user = choices[index].selected.toUpperCase();
     const model = e.choice.toUpperCase();
     return `<div class="result-row">
       <div class="result-top"><div class="result-name">${String(index + 1).padStart(2, '0')} · ${escapeHtml(scenario.family)}<small>${escapeHtml(scenario.setting)}</small></div>
       <div class="result-choices">You: <b>${user}</b> &nbsp;·&nbsp; ${isReal ? 'Jev' : 'Sample'}: <b class="${user === model ? '' : 'disagree'}">${model}</b></div></div>
       <div class="bar" aria-label="Option A ${pct(e.probabilities.a)}, option B ${pct(e.probabilities.b)}"><div class="bar-a" style="width:${e.probabilities.a * 100}%"></div><div class="bar-b" style="width:${e.probabilities.b * 100}%"></div></div>
       <div class="bar-labels"><span>A · ${pct(e.probabilities.a)}</span><span>B · ${pct(e.probabilities.b)}</span></div>
+      <details class="run-case-details"><summary>View saved scenario</summary><p>${escapeHtml(scenario.premise)}</p>
+        <div><b>A · ${escapeHtml(scenario.a.action)}</b> — Spared: ${escapeHtml(scenario.a.spared)}; Killed: ${escapeHtml(scenario.a.harmed)}</div>
+        <div><b>B · ${escapeHtml(scenario.b.action)}</b> — Spared: ${escapeHtml(scenario.b.spared)}; Killed: ${escapeHtml(scenario.b.harmed)}</div>
+      </details>
     </div>`;
   }).join('');
   results.classList.remove('hidden');
   results.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
+
+async function loadRuns() {
+  try {
+    const response = await fetch('/api/runs');
+    if (!response.ok) throw new Error('Saved runs could not be loaded.');
+    const { runs } = await response.json();
+    historyList.innerHTML = runs.length ? runs.map((run) => `
+      <div class="history-row"><div><strong>${escapeHtml(runDate(run.createdAt))}</strong>
+      <span>${run.mode === 'jev' ? 'Jev' : 'Sample'} · ${escapeHtml(run.provider)} · ${run.summary.scenarioCount} cases · ${run.summary.agreementCount} matches</span></div>
+      <div class="history-actions"><button type="button" data-run="${escapeHtml(run.id)}">View report</button><a href="/api/runs/${encodeURIComponent(run.id)}" download="moral-machine-run-${escapeHtml(run.id)}.json">Download JSON</a></div></div>`).join('')
+      : '<p>No completed runs yet. Finish a session to save its report.</p>';
+  } catch (error) {
+    historyList.innerHTML = `<p role="alert">${escapeHtml(error.message)}</p>`;
+  }
+}
+
+historyList.addEventListener('click', async (event) => {
+  const button = event.target.closest('[data-run]');
+  if (!button) return;
+  button.disabled = true;
+  try {
+    const response = await fetch(`/api/runs/${encodeURIComponent(button.dataset.run)}`);
+    if (!response.ok) throw new Error('The report could not be opened.');
+    showResults(await response.json());
+  } catch (error) {
+    historyList.insertAdjacentHTML('afterbegin', `<p role="alert">${escapeHtml(error.message)}</p>`);
+  } finally {
+    button.disabled = false;
+  }
+});
 
 async function evaluate() {
   if (selections.some((value) => !value)) {
@@ -96,10 +136,11 @@ async function evaluate() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ choices: scenarios.map((s, index) => ({ id: s.id, selected: selections[index] })) }),
     });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error || 'The session could not be evaluated.');
+    const report = await response.json();
+    if (!response.ok) throw new Error(report.error || 'The session could not be evaluated.');
     renderScenario();
-    showResults(data);
+    showResults(report);
+    await loadRuns();
   } catch (error) {
     card.innerHTML = `<div class="error-box" role="alert">${escapeHtml(error.message)}</div>`;
     nextBtn.disabled = false;
@@ -133,6 +174,7 @@ async function init() {
     providerPill.textContent = provider === 'openrouter' ? 'JEV · OPENROUTER' : provider === 'vercel' ? 'JEV · VERCEL' : 'SAMPLE MODE';
     providerPill.classList.toggle('demo', provider === 'sample');
     renderScenario();
+    loadRuns();
   } catch (error) {
     card.innerHTML = `<div class="error-box" role="alert">${escapeHtml(error.message)}</div>`;
     providerPill.textContent = 'OFFLINE';
