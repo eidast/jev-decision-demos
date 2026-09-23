@@ -5,15 +5,15 @@ These rules apply to every change in this repository.
 ## Language and documentation
 
 - Write source code, identifiers, comments, UI text, tests, and documentation in English.
-- Keep `README.md`, `docs/EXPERIMENT.md`, `docs/INTEGRATIONS.md`, `SECURITY.md`, and `MoralMachine/README.md` aligned with the behavior that is actually implemented. Document changes to the saved run schema and retention behavior in `docs/EXPERIMENT.md`.
+- Keep `README.md`, `MoralMachine/EXPERIMENT.md`, `docs/INTEGRATIONS.md`, `SECURITY.md`, and `MoralMachine/README.md` aligned with the behavior that is actually implemented. Document changes to the saved run schema and retention behavior in `MoralMachine/EXPERIMENT.md`.
 - Preserve the distinction between original demo cases, the published Moral Machine experiment, and Jev model outputs. Never describe demo cases as official cases or model probabilities as human vote shares.
-- Record material changes to the 13-case protocol, model question wording, provider IDs, or reported metrics in `docs/EXPERIMENT.md` before calling a change complete.
+- Record material changes to the 13-case protocol, model question wording, provider IDs, or reported metrics in `MoralMachine/EXPERIMENT.md` before calling a change complete.
 
 ## License and attribution
 
 - The original code and documentation in this repository are MIT licensed; keep `LICENSE` and the `license` field in `package.json`.
 - Do not copy Moral Machine artwork, scenario data, or third-party code into this project without checking their separate rights and recording provenance.
-- Keep `THIRD_PARTY_ASSETS.md` and the visible credits page aligned with any third-party artwork. Do not imply the repository's MIT license covers copied artwork.
+- Keep `MoralMachine/THIRD_PARTY_ASSETS.md` and the visible credits page aligned with any third-party artwork. Do not imply the repository's MIT license covers copied artwork.
 - Use only controlled test runs or synthetic data in public README media. Label example model outputs as one run and do not publish participants' local report files or choices without their instruction.
 
 ## Secrets and verification

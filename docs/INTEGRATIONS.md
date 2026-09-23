@@ -15,7 +15,7 @@ Its probabilities are intended to be calibrated across groups of predictions. A 
 | OpenRouter, used for the live demo | `typesafe/jev-1.13` | `POST https://openrouter.ai/api/alpha/decisions` | `OPENROUTER_API_KEY` |
 | Vercel AI Gateway, implemented but not live-tested here | `typesafe-ai/jev` | `POST https://ai-gateway.vercel.sh/v1/evaluate` | `AI_GATEWAY_API_KEY` |
 
-The server selects OpenRouter when both keys are present. It falls back to Vercel if only its key is present, and to clearly labeled sample mode if neither exists. Both providers receive only the built-in scenario descriptions and questions. The participant's selections remain in the local app and its server request; they are not included in the request to Jev.
+The server selects OpenRouter when both keys are present. It falls back to Vercel if only its key is present, and to clearly labeled sample mode for the Moral Machine exercise if neither exists. The Tic Tac Toe game requires a configured provider key. For Moral Machine, providers receive only the built-in scenario descriptions and questions. The participant's selections remain in the local app and its server request; they are not included in the request to Jev. For Tic Tac Toe, providers receive the current board and only the minimax-optimal candidate moves. Jev selects the final square among those candidates.
 The local scenario objects also contain character portrait IDs for display and saved-run snapshots. `scenarioState` removes that visual metadata before a provider request, so the model evaluates the same textual outcome descriptions.
 
 ### OpenRouter
@@ -77,7 +77,11 @@ This repo uses the built-in Node.js `fetch` API to avoid a package dependency. A
 
 The `POST /api/evaluate` route validates an exact, ordered list of 13 participant choices against the server's case IDs. It accepts JSON only and limits the request body to 24,000 characters. The participant's selections affect the comparison metrics, not Jev's input.
 
-After validation, the server writes a local run report and returns that report to the browser. This adds the participant's choices and scenario snapshot to the local response while keeping the raw provider payload and credentials out of it. `GET /api/runs` returns report summaries, and `GET /api/runs/:id` returns one full saved report; see [the report specification](EXPERIMENT.md#saved-run-reports).
+After validation, the server writes a local run report and returns that report to the browser. This adds the participant's choices and scenario snapshot to the local response while keeping the raw provider payload and credentials out of it. `GET /api/runs` returns report summaries, and `GET /api/runs/:id` returns one full saved report; see [the report specification](../MoralMachine/EXPERIMENT.md#saved-run-reports).
+
+## Tic Tac Toe move requests
+
+The game creates an in-memory session with `POST /api/tic-tac-toe/games`. The human posts a square to `/api/tic-tac-toe/games/:id/human`; the browser triggers `/api/tic-tac-toe/games/:id/jev` for each machine turn. The latter uses the same selected provider and model but sends one `choice` question. Its state includes the current 3×3 board, the two marks, and whose turn is next. The server scores every empty square with minimax and offers Jev only those preserving the best possible result, prioritizing immediate wins. The criteria use `cell_0` through `cell_8` in row-major order. The server validates probabilities for every offered candidate and requires the selected square to be in that set before placing the mark. It computes wins and draws in code. An invalid provider move fails the request; no rule-based substitute plays for Jev. This game is separate from the 13-case experiment and saves local execution logs, not Moral Machine run reports. See [the technical design](../TicTacToe/TECHNICAL.md).
 
 ## Evaluation still needed for any real use
 

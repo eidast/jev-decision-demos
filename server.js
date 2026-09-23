@@ -2,11 +2,14 @@ import http from 'node:http';
 import { readFileSync, existsSync } from 'node:fs';
 import { extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { scenarios, scenarioState, validateChoices } from './scenarios.js';
-import { getRun, listRuns, saveRun } from './runs.js';
+import { scenarios, scenarioState, validateChoices } from './MoralMachine/scenarios.js';
+import { getRun, listRuns, saveRun } from './MoralMachine/runs.js';
+import { createGame, GameError, playHuman, playMachine, publicGame } from './TicTacToe/session.js';
 
 const root = fileURLToPath(new URL('.', import.meta.url));
-const reportsDirectory = join(root, 'reports');
+const reportsDirectory = join(root, 'MoralMachine', 'reports');
+const gameLogsDirectory = join(root, 'TicTacToe', 'logs');
+const games = new Map();
 if (existsSync(join(root, '.env'))) process.loadEnvFile(join(root, '.env'));
 
 const port = Number(process.env.PORT || 3000);
@@ -104,6 +107,38 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'GET' && url.pathname === '/api/scenarios') {
       return json(res, 200, { scenarios, provider });
     }
+    if (req.method === 'GET' && url.pathname === '/api/tic-tac-toe/status') {
+      return json(res, 200, { provider, ready: provider !== 'sample' });
+    }
+    const gameStateMatch = url.pathname.match(/^\/api\/tic-tac-toe\/games\/([0-9a-f-]{36})$/);
+    if (req.method === 'GET' && gameStateMatch) {
+      const game = games.get(gameStateMatch[1]);
+      return game ? json(res, 200, publicGame(game)) : json(res, 404, { error: 'Game not found.' });
+    }
+    if (req.method === 'POST' && url.pathname.startsWith('/api/tic-tac-toe/games')) {
+      if (!req.headers['content-type']?.startsWith('application/json')) return json(res, 415, { error: 'Expected application/json.' });
+      let input;
+      try { input = await readJson(req); }
+      catch (error) { return json(res, 400, { error: error.message === 'Request body is too large.' ? error.message : 'Invalid JSON request.' }); }
+      if (provider === 'sample') return json(res, 503, { error: 'Configure a Jev API key to play.' });
+      try {
+        if (url.pathname === '/api/tic-tac-toe/games') {
+          return json(res, 201, createGame(gameLogsDirectory, input?.human, provider, model, games));
+        }
+        const match = url.pathname.match(/^\/api\/tic-tac-toe\/games\/([0-9a-f-]{36})\/(human|jev)$/);
+        if (!match) return json(res, 404, { error: 'Game route not found.' });
+        const game = games.get(match[1]);
+        const state = match[2] === 'human'
+          ? playHuman(gameLogsDirectory, game, input?.index)
+          : await playMachine(gameLogsDirectory, game, {
+            provider, model, key: provider === 'openrouter' ? openRouterKey : gatewayKey,
+          });
+        return json(res, 200, state);
+      } catch (error) {
+        if (error instanceof GameError) return json(res, error.status, { error: error.message });
+        throw error;
+      }
+    }
     if (req.method === 'GET' && url.pathname === '/api/runs') {
       return json(res, 200, { runs: listRuns(reportsDirectory) });
     }
@@ -125,27 +160,35 @@ const server = http.createServer(async (req, res) => {
       return json(res, 200, report);
     }
     if (req.method !== 'GET') return json(res, 405, { error: 'Method not allowed.' });
-    const assetMatch = url.pathname.match(/^\/assets\/moral-machine\/([a-z]+_passenger\.svg)$/);
+    const assetMatch = url.pathname.match(/^\/MoralMachine\/assets\/moral-machine\/([a-z]+_passenger\.svg)$/);
     if (assetMatch) {
-      const file = join(root, 'public', 'assets', 'moral-machine', assetMatch[1]);
+      const file = join(root, 'MoralMachine', 'public', 'assets', 'moral-machine', assetMatch[1]);
       if (!existsSync(file)) return json(res, 404, { error: 'Not found.' });
       const contents = readFileSync(file);
       res.writeHead(200, { 'Content-Type': 'image/svg+xml; charset=utf-8', 'Content-Length': contents.length, 'Cache-Control': 'public, max-age=3600' });
       return res.end(contents);
     }
-    const path = normalize(url.pathname === '/' ? '/index.html' : url.pathname);
-    if (!['/index.html', '/assets.html', '/style.css', '/app.js'].includes(path)) return json(res, 404, { error: 'Not found.' });
-    const file = join(root, 'public', path.slice(1));
+    const path = normalize(url.pathname);
+    const gameFile = { '/TicTacToe': 'index.html', '/TicTacToe/': 'index.html',
+      '/TicTacToe/index.html': 'index.html', '/TicTacToe/app.js': 'app.js', '/TicTacToe/style.css': 'style.css' }[path];
+    const moralFile = { '/MoralMachine': 'index.html', '/MoralMachine/': 'index.html',
+      '/MoralMachine/index.html': 'index.html', '/MoralMachine/assets.html': 'assets.html',
+      '/MoralMachine/app.js': 'app.js', '/MoralMachine/style.css': 'style.css' }[path];
+    const landingFile = path === '/' || path === '/index.html';
+    if (!gameFile && !moralFile && !landingFile) return json(res, 404, { error: 'Not found.' });
+    const file = gameFile ? join(root, 'TicTacToe', gameFile)
+      : moralFile ? join(root, 'MoralMachine', 'public', moralFile)
+      : join(root, 'site', 'index.html');
     const contents = readFileSync(file);
     res.writeHead(200, { 'Content-Type': `${mime[extname(file)]}; charset=utf-8`, 'Content-Length': contents.length });
     res.end(contents);
   } catch (error) {
-    console.error('Evaluation failed:', error.name || 'Error');
-    const safe = error.message.startsWith('The provider account') ||
+    console.error('Request failed:', error.name || 'Error');
+    const safe = error.message === 'Jev did not return a legal move.' || error.message.startsWith('The provider account') ||
       error.message.startsWith('The API key cannot') || error.message.startsWith('The provider rate limit') ||
       error.message.startsWith('The provider returned HTTP');
-    json(res, 502, { error: safe ? error.message : 'The evaluation could not be completed. Check the server configuration and retry.' });
+    json(res, 502, { error: safe ? error.message : 'The request could not be completed. Check the server configuration and retry.' });
   }
 });
 
-server.listen(port, host, () => console.log(`Moral Machine × Jev: http://${host}:${port} (${provider})`));
+server.listen(port, host, () => console.log(`Jev demos: http://${host}:${port} (${provider})`));

@@ -20,7 +20,7 @@ function escapeHtml(value) {
 
 function portraitsHtml(ids) {
   return (ids || []).filter((id) => /^[a-z]+$/.test(id)).map((id) =>
-    `<img src="/assets/moral-machine/${id}_passenger.svg" alt="" loading="lazy">`).join('');
+    `<img src="/MoralMachine/assets/moral-machine/${id}_passenger.svg" alt="" loading="lazy">`).join('');
 }
 
 function optionHtml(letter, outcome) {

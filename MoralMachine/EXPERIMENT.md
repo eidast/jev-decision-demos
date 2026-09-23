@@ -1,12 +1,14 @@
 # Experiment protocol and interpretation
 
+This document covers the 13-case Moral Machine exercise, its interpretation, and its saved reports. The separate [Tic Tac Toe game](../TicTacToe/TECHNICAL.md) has its own decision policy and log schema.
+
 **Version:** 1.0, September 22, 2026. **Status:** working educational demo, not a scientific replication or a vehicle-control system.
 
 ## Purpose and boundary
 
 The demo asks: *How do one participant's choices in 13 hypothetical crash dilemmas compare with Jev's probability distribution over the same A/B outcomes?* The app shows the model distribution for each case and computes simple within-session summaries. It does not estimate public opinion, identify a morally correct action, or test an autonomous vehicle.
 
-The structure is inspired by the published [Moral Machine experiment](https://doi.org/10.1038/s41586-018-0637-6): two dilemmas focused on each of six character dimensions, plus one other dilemma in a 13-case session. The source experiment generates its cases from a large space and randomizes additional attributes. **This demo instead uses the fixed, original cases in `scenarios.js`**. No official scenario screenshot, user vote, or result was imported. Fifteen official character portraits illustrate the original cases and are attributed separately. See [Moral Machine background](../MoralMachine/README.md) and [asset provenance](../THIRD_PARTY_ASSETS.md).
+The structure is inspired by the published [Moral Machine experiment](https://doi.org/10.1038/s41586-018-0637-6): two dilemmas focused on each of six character dimensions, plus one other dilemma in a 13-case session. The source experiment generates its cases from a large space and randomizes additional attributes. **This demo instead uses the fixed, original cases in `scenarios.js`**. No official scenario screenshot, user vote, or result was imported. Fifteen official character portraits illustrate the original cases and are attributed separately. See [Moral Machine background](ORIGINAL_STUDY.md) and [asset provenance](THIRD_PARTY_ASSETS.md).
 
 ## Participant protocol
 
@@ -21,7 +23,7 @@ Choices are held in browser memory while the participant works. A completed eval
 
 ## Saved run reports
 
-For each successful evaluation, the server writes `reports/<uuid>.json` with restrictive local file permissions. Each report records an ISO 8601 timestamp, provider and model ID, the exact scenario descriptions and A/B outcomes shown in that run, the participant's ordered choices, the validated Jev or sample answers, and the computed agreement count and mean selected probability. The scenarios are copied into the report at evaluation time; a later change to `scenarios.js` does not rewrite older reports. Sample results remain labeled `sample`, so they cannot be mistaken for Jev observations. Failed or incomplete evaluations do not create reports.
+For each successful evaluation, the server writes `MoralMachine/reports/<uuid>.json` with restrictive local file permissions. Each report records an ISO 8601 timestamp, provider and model ID, the exact scenario descriptions and A/B outcomes shown in that run, the participant's ordered choices, the validated Jev or sample answers, and the computed agreement count and mean selected probability. The scenarios are copied into the report at evaluation time; a later change to `scenarios.js` does not rewrite older reports. Sample results remain labeled `sample`, so they cannot be mistaken for Jev observations. Failed or incomplete evaluations do not create reports.
 
 The browser lists previous runs through `GET /api/runs`, reopens a full report through `GET /api/runs/:id`, and offers a JSON download. `POST /api/evaluate` returns the report it just saved. Reports are local files excluded from Git. They contain participant decisions, so review a downloaded report before sharing it. There is no name, account, IP address, or API key in the report schema. The files do not include the raw provider response, usage metadata, or billing data.
 
@@ -29,7 +31,7 @@ The published Moral Machine site generates variable cases. **This demo still pre
 
 ## Complete demo case inventory
 
-In the outcome cells, `spared / killed` gives the two affected groups. The full premise and exact strings are in [`scenarios.js`](../scenarios.js). Every case is authored for this demo.
+In the outcome cells, `spared / killed` gives the two affected groups. The full premise and exact strings are in [`scenarios.js`](scenarios.js). Every case is authored for this demo.
 
 | # | ID and focus | Option A: action; spared / killed | Option B: action; spared / killed |
 | ---: | --- | --- | --- |
@@ -49,7 +51,7 @@ In the outcome cells, `spared / killed` gives the two affected groups. The full 
 
 The second case in each focus family reverses the A/B assignment of staying versus swerving. This reduces a simple fixed-letter action pattern but does not remove order, wording, or action confounds. The mixed case includes pedestrians crossing against the signal. The cases are not randomized.
 
-The option cards display official Moral Machine character portraits as decorative illustrations of the groups named in each original demo case. They are not official scenario images: the source site composes its scenarios from reusable visual pieces, and its randomly generated cases do not correspond to this fixed case inventory. The participant must use the scenario text for action, location, and outcomes. The `visuals` arrays in the scenario snapshot preserve the displayed portrait identities in saved reports; `scenarioState` omits the portrait metadata from the Jev request. See [asset provenance](../THIRD_PARTY_ASSETS.md).
+The option cards display official Moral Machine character portraits as decorative illustrations of the groups named in each original demo case. They are not official scenario images: the source site composes its scenarios from reusable visual pieces, and its randomly generated cases do not correspond to this fixed case inventory. The participant must use the scenario text for action, location, and outcomes. The `visuals` arrays in the scenario snapshot preserve the displayed portrait identities in saved reports; `scenarioState` omits the portrait metadata from the Jev request. See [asset provenance](THIRD_PARTY_ASSETS.md).
 
 ## Jev question and model data
 

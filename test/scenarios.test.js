@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
-import { scenarios, scenarioState, validateChoices } from '../scenarios.js';
+import { scenarios, scenarioState, validateChoices } from '../MoralMachine/scenarios.js';
 
 test('a session has the documented six pairs and one mixed case', () => {
   assert.equal(scenarios.length, 13);
@@ -27,7 +27,7 @@ test('each pictured group matches the scenario count and uses an available portr
       for (const kind of ['spared', 'harmed']) {
         assert.equal(outcome.visuals[kind].length, Number(outcome[kind].split(' ')[0]), scenario.id);
         for (const icon of outcome.visuals[kind]) {
-          assert.ok(existsSync(new URL(`../public/assets/moral-machine/${icon}_passenger.svg`, import.meta.url)), icon);
+          assert.ok(existsSync(new URL(`../MoralMachine/public/assets/moral-machine/${icon}_passenger.svg`, import.meta.url)), icon);
         }
       }
     }

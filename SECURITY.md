@@ -7,8 +7,9 @@ This demo uses a paid Jev provider from a local Node.js server. Treat an OpenRou
 - `server.js` reads `OPENROUTER_API_KEY` or `AI_GATEWAY_API_KEY` from the process environment or the local `.env` file. It sends the key only as a Bearer token to the selected provider over HTTPS.
 - The HTTP server binds to `127.0.0.1` by default. Do not change `HOST` to a public address while relying on this unauthenticated evaluation endpoint.
 - The browser receives scenario descriptions, a provider label, and reduced probability results. It never receives the key, raw provider metadata, or provider response bodies.
+- The Tic Tac Toe page sends the chosen mark and human move indices to local game endpoints. The server owns the board, forwards the current board and a bounded move question to Jev, validates the answer, and returns the updated game state. It saves one local `TicTacToe/logs/<id>.jsonl` trace per game, including the board, prompt, sanitized choice probabilities, and deterministic decision audit. It does not save credentials or raw provider metadata in that trace.
 - The participant's A/B selections are validated by the local server but are not forwarded to Jev. The built-in hypothetical cases are sent to the provider.
-- No application database or browser storage is used. Completed runs are saved as local JSON files in the Git-ignored `reports/` directory with mode `0600`; these files contain participant decisions and scenario snapshots but no key. The provider may retain requests according to its own terms; consult the provider before using private data.
+- No application database or browser storage is used. Completed Moral Machine runs are saved as local JSON files in the Git-ignored `MoralMachine/reports/` directory with mode `0600`. Tic Tac Toe logs are saved in the Git-ignored `TicTacToe/logs/` directory with mode `0700` and files with mode `0600`; no automatic deletion is implemented. The provider may retain requests according to its own terms; consult the provider before using private data.
 
 ## Local key setup
 
@@ -19,7 +20,7 @@ chmod 600 .env
 npm run check:secrets
 ```
 
-`.gitignore` excludes `.env` and other `.env*` files except `.env.example`, as well as local `reports/`. The current local `.env` is intentionally **not** part of the MIT-licensed project. Do not add it with `git add -f`, attach it to a task, paste its value into an issue, or place it in a client-side environment variable. Review downloaded reports before sharing them. Use a test key with a spending limit where the provider supports one. Revoke or rotate the temporary demo key after the demo.
+`.gitignore` excludes `.env` and other `.env*` files except `.env.example`, as well as local `MoralMachine/reports/`. The current local `.env` is intentionally **not** part of the MIT-licensed project. Do not add it with `git add -f`, attach it to a task, paste its value into an issue, or place it in a client-side environment variable. Review downloaded reports before sharing them. Use a test key with a spending limit where the provider supports one. Revoke or rotate the temporary demo key after the demo.
 
 ## Leak defenses
 
@@ -32,7 +33,7 @@ Pattern scanning is a backstop, not a guarantee. Review diffs before publication
 
 ## Public deployment
 
-The current endpoint would let any caller who reaches it spend the server's provider credits. Before deploying it beyond loopback, add authentication, request rate limits, spending limits, server-side monitoring, and an explicit privacy policy for data sent to the provider. Keep provider keys in the deployment platform's secret store. Do not ship the local `.env` file.
+The current evaluation and game-move endpoints would let any caller who reaches them spend the server's provider credits. Before deploying them beyond loopback, add authentication, request rate limits, spending limits, server-side monitoring, and an explicit privacy policy for data sent to the provider. Keep provider keys in the deployment platform's secret store. Do not ship the local `.env` file.
 
 ## If a key leaks
 
