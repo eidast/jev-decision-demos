@@ -4,6 +4,8 @@ An independent, MIT-licensed web demo for exploring 13 hypothetical self-driving
 
 **The cases are original to this repository.** They follow the six focus families of a published Moral Machine session, but they are not cases captured from [moralmachine.net](https://www.moralmachine.net/) and do not contain Moral Machine vote data. Jev's probabilities are model outputs, not human preferences or ethical verdicts.
 
+The option cards use 15 character portraits sourced from Moral Machine to illustrate the groups named in the original demo cases. The portraits are credited under the project's CC BY 4.0 notice and are separate from the MIT-licensed code. See [THIRD_PARTY_ASSETS.md](THIRD_PARTY_ASSETS.md) for sources, hashes, and the license scope.
+
 ## Run locally
 
 Requires Node.js 20 or newer. No package installation is needed.
@@ -36,6 +38,7 @@ The backend sends 13 `choice` questions in one evaluation request. It uses [Open
 | [MoralMachine/README.md](MoralMachine/README.md) | Source-backed account of the original Moral Machine experiment and its scenario space. |
 | [SECURITY.md](SECURITY.md) | Credential handling, local network boundary, leak checks, and disclosure process. |
 | [AGENTS.md](AGENTS.md) | Repository rules for language, provenance, licensing, and verification. |
+| [THIRD_PARTY_ASSETS.md](THIRD_PARTY_ASSETS.md) | Official character portrait provenance, attribution, license scope, and checksums. |
 
 ## Verification
 
@@ -44,4 +47,4 @@ npm test
 npm run check:secrets
 ```
 
-The original code and documentation are licensed under the [MIT License](LICENSE). Moral Machine and Jev are third-party projects with their own terms; this license does not relicense their services, marks, data, or artwork.
+The original code and documentation are licensed under the [MIT License](LICENSE). The copied Moral Machine portraits are credited separately under the project-level CC BY 4.0 notice. This repository's MIT license does not relicense them, Moral Machine's data or marks, or Jev's services.

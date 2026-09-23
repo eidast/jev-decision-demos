@@ -18,10 +18,16 @@ function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
 }
 
+function portraitsHtml(ids) {
+  return (ids || []).filter((id) => /^[a-z]+$/.test(id)).map((id) =>
+    `<img src="/assets/moral-machine/${id}_passenger.svg" alt="" loading="lazy">`).join('');
+}
+
 function optionHtml(letter, outcome) {
   const selected = selections[current] === letter;
   return `<button class="option${selected ? ' selected' : ''}" type="button" data-option="${letter}" aria-pressed="${selected}">
     <span class="option-top"><span class="option-letter">${letter.toUpperCase()}</span><span class="option-action">${escapeHtml(outcome.action)}</span></span>
+    <span class="outcome-portraits" aria-hidden="true"><span class="portrait-group spared">${portraitsHtml(outcome.visuals?.spared)}</span><span class="portrait-arrow">│</span><span class="portrait-group harmed">${portraitsHtml(outcome.visuals?.harmed)}</span></span>
     <strong>Spared: ${escapeHtml(outcome.spared)}</strong>
     <span class="harm"><b>Killed:</b> ${escapeHtml(outcome.harmed)}</span>
   </button>`;

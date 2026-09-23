@@ -16,6 +16,7 @@ Its probabilities are intended to be calibrated across groups of predictions. A 
 | Vercel AI Gateway, implemented but not live-tested here | `typesafe-ai/jev` | `POST https://ai-gateway.vercel.sh/v1/evaluate` | `AI_GATEWAY_API_KEY` |
 
 The server selects OpenRouter when both keys are present. It falls back to Vercel if only its key is present, and to clearly labeled sample mode if neither exists. Both providers receive only the built-in scenario descriptions and questions. The participant's selections remain in the local app and its server request; they are not included in the request to Jev.
+The local scenario objects also contain character portrait IDs for display and saved-run snapshots. `scenarioState` removes that visual metadata before a provider request, so the model evaluates the same textual outcome descriptions.
 
 ### OpenRouter
 

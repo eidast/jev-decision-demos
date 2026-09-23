@@ -49,6 +49,8 @@ In the outcome cells, `spared / killed` gives the two affected groups. The full 
 
 The second case in each focus family reverses the A/B assignment of staying versus swerving. This reduces a simple fixed-letter action pattern but does not remove order, wording, or action confounds. The mixed case includes pedestrians crossing against the signal. The cases are not randomized.
 
+The option cards display official Moral Machine character portraits as decorative illustrations of the groups named in each original demo case. They are not official scenario images: the source site composes its scenarios from reusable visual pieces, and its randomly generated cases do not correspond to this fixed case inventory. The participant must use the scenario text for action, location, and outcomes. The `visuals` arrays in the scenario snapshot preserve the displayed portrait identities in saved reports; `scenarioState` omits the portrait metadata from the Jev request. See [asset provenance](../THIRD_PARTY_ASSETS.md).
+
 ## Jev question and model data
 
 The server creates one `choice` question for each case ID:
@@ -82,3 +84,5 @@ When no provider key is present, the server returns a fixed set of illustrative 
 During initial construction on September 22, 2026, a local browser run completed all 13 cases and displayed a real OpenRouter Jev response; the server returned 13 answer objects. An incomplete submission returned HTTP 400. After the English-language and documentation update, a second browser session completed all 13 cases against OpenRouter. Its result view showed 13 Jev evaluations, 6 matches, and a 48% mean probability for that one illustrative participant sequence; these figures are verification evidence, not study findings. The interface was visually checked at a narrow viewport. After any material change to scenarios, prompts, or code, rerun the checks in the repository README and complete a new live browser session before updating this record.
 
 After adding reports, a new 13-case browser run against OpenRouter produced a local JSON file with 13 scenario snapshots, 13 choices, and 13 validated answers. The history listed the run and reopened it after a page reload. The downloaded-report endpoint returned HTTP 200; an invalid run ID and `/.env` both returned HTTP 404. The report directory and file were verified as mode `0700` and `0600`, respectively, and both remain ignored by Git. The interface was visually checked at a narrow viewport.
+
+After adding character portraits, every pictured group was checked against its textual count and the local asset inventory. A narrow-viewport browser check showed the icons and spared/killed labels inside both decision cards. A further 13-case OpenRouter run completed, returned Jev results, and saved a report that includes the portrait IDs in its scenario snapshot. The credits page and an approved portrait URL returned HTTP 200; an unknown portrait path and `/.env` returned HTTP 404.

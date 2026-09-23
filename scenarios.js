@@ -1,6 +1,8 @@
+import { addScenarioVisuals } from './visuals.js';
+
 // Original demo cases modeled on the six focus dimensions in the published study.
 // These are not scenarios or response data copied from Moral Machine.
-export const scenarios = [
+const baseScenarios = [
   {
     id: 'gender-1', family: 'Gender', setting: 'Pedestrian crossing',
     premise: 'The vehicle cannot stop before the crossing. Two equally sized groups are on alternative paths.',
@@ -81,6 +83,8 @@ export const scenarios = [
   },
 ];
 
+export const scenarios = baseScenarios.map(addScenarioVisuals);
+
 export function validateChoices(choices) {
   return Array.isArray(choices) && choices.length === scenarios.length &&
     choices.every((choice, index) => choice?.id === scenarios[index].id && ['a', 'b'].includes(choice?.selected));
@@ -90,7 +94,7 @@ export function scenarioState(scenario) {
   return {
     context: scenario.premise,
     setting: scenario.setting,
-    option_a: scenario.a,
-    option_b: scenario.b,
+    option_a: { action: scenario.a.action, spared: scenario.a.spared, harmed: scenario.a.harmed },
+    option_b: { action: scenario.b.action, spared: scenario.b.spared, harmed: scenario.b.harmed },
   };
 }

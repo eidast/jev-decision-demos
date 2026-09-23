@@ -125,8 +125,16 @@ const server = http.createServer(async (req, res) => {
       return json(res, 200, report);
     }
     if (req.method !== 'GET') return json(res, 405, { error: 'Method not allowed.' });
+    const assetMatch = url.pathname.match(/^\/assets\/moral-machine\/([a-z]+_passenger\.svg)$/);
+    if (assetMatch) {
+      const file = join(root, 'public', 'assets', 'moral-machine', assetMatch[1]);
+      if (!existsSync(file)) return json(res, 404, { error: 'Not found.' });
+      const contents = readFileSync(file);
+      res.writeHead(200, { 'Content-Type': 'image/svg+xml; charset=utf-8', 'Content-Length': contents.length, 'Cache-Control': 'public, max-age=3600' });
+      return res.end(contents);
+    }
     const path = normalize(url.pathname === '/' ? '/index.html' : url.pathname);
-    if (!['/index.html', '/style.css', '/app.js'].includes(path)) return json(res, 404, { error: 'Not found.' });
+    if (!['/index.html', '/assets.html', '/style.css', '/app.js'].includes(path)) return json(res, 404, { error: 'Not found.' });
     const file = join(root, 'public', path.slice(1));
     const contents = readFileSync(file);
     res.writeHead(200, { 'Content-Type': `${mime[extname(file)]}; charset=utf-8`, 'Content-Length': contents.length });

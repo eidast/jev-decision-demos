@@ -13,6 +13,7 @@ These rules apply to every change in this repository.
 
 - The original code and documentation in this repository are MIT licensed; keep `LICENSE` and the `license` field in `package.json`.
 - Do not copy Moral Machine artwork, scenario data, or third-party code into this project without checking their separate rights and recording provenance.
+- Keep `THIRD_PARTY_ASSETS.md` and the visible credits page aligned with any third-party artwork. Do not imply the repository's MIT license covers copied artwork.
 
 ## Secrets and verification
 

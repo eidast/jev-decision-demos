@@ -51,7 +51,8 @@ The following English labels paraphrase the characters shown in figure 2 of the 
 
 ## Relationship to this demo
 
-The demo contains 13 **original, fixed cases** in `scenarios.js`: two cases for each of the six focus families and one mixed case. It does not implement Moral Machine's random generator, reproduce a live Judge session, reuse official artwork, or compare the participant with the study's human vote data. See [the experiment protocol](../docs/EXPERIMENT.md) for every demo case and its limitations.
+The demo contains 13 **original, fixed cases** in `scenarios.js`: two cases for each of the six focus families and one mixed case. It does not implement Moral Machine's random generator, reproduce a live Judge session or its screenshots, or compare the participant with the study's human vote data. See [the experiment protocol](../docs/EXPERIMENT.md) for every demo case and its limitations.
+The demo uses a limited set of official character portrait icons to illustrate the groups in its own cases. These portraits are attributed separately; they are not screenshots of official scenarios. See [third-party asset provenance](../THIRD_PARTY_ASSETS.md).
 
 ## Primary sources
 
