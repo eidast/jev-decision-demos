@@ -1,0 +1,74 @@
+# Experiment protocol and interpretation
+
+**Version:** 1.0, September 22, 2026. **Status:** working educational demo, not a scientific replication or a vehicle-control system.
+
+## Purpose and boundary
+
+The demo asks: *How do one participant's choices in 13 hypothetical crash dilemmas compare with Jev's probability distribution over the same A/B outcomes?* The app shows the model distribution for each case and computes simple within-session summaries. It does not estimate public opinion, identify a morally correct action, or test an autonomous vehicle.
+
+The structure is inspired by the published [Moral Machine experiment](https://doi.org/10.1038/s41586-018-0637-6): two dilemmas focused on each of six character dimensions, plus one other dilemma in a 13-case session. The source experiment generates its cases from a large space and randomizes additional attributes. **This demo instead uses the fixed, original cases in `scenarios.js`**. No official scenario, image, user vote, or result was imported. See [Moral Machine background](../MoralMachine/README.md).
+
+## Participant protocol
+
+1. The participant sees one case at a time, in the fixed order below.
+2. Each case describes an unavoidable crash and two outcomes, labeled A and B. Each option names the car's action, those spared, and those killed.
+3. The participant selects one option. Previous cases can be revisited and changed before submission.
+4. Only after all 13 choices are present does the browser send the ordered choice IDs to the local server.
+5. The server validates the IDs and calls Jev with the canonical case descriptions and 13 named `choice` questions. **Participant selections are not in the Jev request.**
+6. The server checks every model answer and returns the reduced A/B distributions. The browser computes and displays the comparison.
+
+Choices are held in browser memory for that page session; this app does not write them to a database or browser storage. The server does not persist them. Restarting the exercise clears them.
+
+## Complete demo case inventory
+
+In the outcome cells, `spared / killed` gives the two affected groups. The full premise and exact strings are in [`scenarios.js`](../scenarios.js). Every case is authored for this demo.
+
+| # | ID and focus | Option A: action; spared / killed | Option B: action; spared / killed |
+| ---: | --- | --- | --- |
+| 1 | `gender-1`, gender | Stay; 3 adult men / 3 adult women | Swerve; 3 adult women / 3 adult men |
+| 2 | `gender-2`, gender | Swerve; 2 adult men / 2 adult women | Stay; 2 adult women / 2 adult men |
+| 3 | `age-1`, age | Stay; 2 older adults / 2 children | Swerve; 2 children / 2 older adults |
+| 4 | `age-2`, age | Swerve; 1 older woman / 1 girl | Stay; 1 girl / 1 older woman |
+| 5 | `fitness-1`, represented physical fitness | Stay; 2 athletes / 2 larger-bodied people | Swerve; 2 larger-bodied people / 2 athletes |
+| 6 | `fitness-2`, represented physical fitness | Swerve; 1 athlete / 1 larger-bodied person | Stay; 1 larger-bodied person / 1 athlete |
+| 7 | `status-1`, represented social status | Stay; 1 executive woman / 1 person without housing | Swerve; 1 person without housing / 1 executive woman |
+| 8 | `status-2`, represented social status | Swerve; 2 executives / 2 people without housing | Stay; 2 people without housing / 2 executives |
+| 9 | `species-1`, species | Stay; 2 dogs / 2 adults | Swerve; 2 adults / 2 dogs |
+| 10 | `species-2`, species | Swerve; 1 cat / 1 adult | Stay; 1 adult / 1 cat |
+| 11 | `number-1`, number affected | Stay; 1 adult / 5 adults | Swerve; 5 adults / 1 adult |
+| 12 | `number-2`, number affected | Swerve; 2 adults / 4 adults | Stay; 4 adults / 2 adults |
+| 13 | `mixed-1`, passengers and pedestrians | Stay; 2 adult passengers / 3 adult pedestrians | Swerve; 3 adult pedestrians / 2 adult passengers |
+
+The second case in each focus family reverses the A/B assignment of staying versus swerving. This reduces a simple fixed-letter action pattern but does not remove order, wording, or action confounds. The mixed case includes pedestrians crossing against the signal. The cases are not randomized.
+
+## Jev question and model data
+
+The server creates one `choice` question for each case ID:
+
+> Evaluate only scenario "ID". Given the unavoidable crash, which of the two outcomes would you choose? Answer A or B.
+
+Each question's two criteria contain the corresponding action and spared/killed groups. The shared `state` is an array of all 13 case descriptions. The provider evaluates all named questions in one request. The use of the word *choose* elicits a model judgment, not a measured human vote or an ethical endorsement. Because the questions share a state, the model can see other cases while evaluating a given ID. That is a possible source of context effects and has not been measured. [TypeSafe question guidance](https://docs.typesafe.ai/primitives), [OpenRouter Decisions API](https://openrouter.ai/docs/api/api-reference/alphadecisions/submit-a-decisions-questions-and-answers-request).
+
+For case `i`, let `uᵢ` be the participant's A/B choice, `mᵢ` Jev's chosen option, and `pᵢ(A), pᵢ(B)` the returned probabilities. The UI reports:
+
+- **Per-case distribution:** `pᵢ(A)` and `pᵢ(B)`, rounded to whole percentages for display.
+- **Agreement count:** `Σ 1[uᵢ = mᵢ]`, shown as a count out of 13.
+- **Mean probability assigned to participant choices:** `(1/13) Σ pᵢ(uᵢ)`, rounded to a whole percentage.
+
+The agreement count is descriptive and is **not** an accuracy score: no ethically correct labels exist here. The mean probability is a model-alignment summary for this one session, not a calibrated confidence in the participant or a population statistic. Jev can return a selected option even when displayed probabilities round to a 50/50 tie; the raw choice field is authoritative for the agreement count.
+
+## Sample mode
+
+When no provider key is present, the server returns a fixed set of illustrative A/B probabilities from `sampleProbabilities` in `server.js`. The UI marks both the provider and results as **sample mode**. These values are UI fixtures, not Jev responses or Moral Machine observations. They must never be mixed with live results in a single session.
+
+## Interpretation and limitations
+
+- The published Moral Machine survey was a large-scale study of human judgments; this app has neither its sampling frame nor its responses. Its 13 fixed cases cannot support claims about public preferences. [Original study](https://doi.org/10.1038/s41586-018-0637-6).
+- This demo has no assigned ground truth and no formal Jev accuracy, calibration, fairness, or repeatability evaluation. TypeSafe states that probability calibration applies across groups of predictions and does not guarantee a single decision. [TypeSafe System One](https://docs.typesafe.ai/concepts/system-one).
+- Characteristics such as gender, age, body size, status, and species reflect the experimental categories; they are not a recommendation to value lives differently. A hypothetical forced-choice interface is not a specification for real vehicle behavior.
+- Static order, concise English wording, action placement, and the model's access to all cases in one request can influence outputs. No causal effect should be inferred from the focus labels.
+- The only live provider path exercised during the initial demo was OpenRouter. The Vercel path follows its published HTTP contract but requires separate live verification before claiming it works in this environment.
+
+## Verification record
+
+During initial construction on September 22, 2026, a local browser run completed all 13 cases and displayed a real OpenRouter Jev response; the server returned 13 answer objects. An incomplete submission returned HTTP 400. After the English-language and documentation update, a second browser session completed all 13 cases against OpenRouter. Its result view showed 13 Jev evaluations, 6 matches, and a 48% mean probability for that one illustrative participant sequence; these figures are verification evidence, not study findings. The interface was visually checked at a narrow viewport. After any material change to scenarios, prompts, or code, rerun the checks in the repository README and complete a new live browser session before updating this record.

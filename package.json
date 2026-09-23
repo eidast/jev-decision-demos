@@ -1,0 +1,13 @@
+{
+  "name": "moral-machine-jev-demo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test",
+    "check:secrets": "node scripts/check-secrets.mjs"
+  },
+  "engines": { "node": ">=20" }
+}
