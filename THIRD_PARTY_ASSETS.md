@@ -25,3 +25,5 @@ Every file below was downloaded from `https://avgame.s3-accelerate.amazonaws.com
 | `woman_passenger.svg` | `75c1ab03bcccaf9db2e840c3f71a132b242ba6b0ba597a4f712b08ff0b05c98f` |
 
 The English group descriptions and portrait assignments are original demo code in `visuals.js`. Some official files have names ending in `_passenger`; here they represent character identity only. A portrait does not assert whether a character is a passenger or pedestrian, or whether they are spared or harmed. The scenario text provides those facts. If a portrait's identity does not match a future scenario, update the mapping and the case documentation together.
+
+The README preview in `docs/assets/` contains the same portraits within screenshots of this demo. Those derivative images retain the attribution above. See [preview provenance](docs/assets/README.md) for the capture conditions and example-run boundary.

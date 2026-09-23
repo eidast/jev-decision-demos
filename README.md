@@ -2,6 +2,10 @@
 
 An independent, MIT-licensed web demo for exploring 13 hypothetical self-driving car dilemmas. A participant chooses one of two outcomes in each case. Jev then assigns a probability to each option, and the app compares the participant's choices with the model's most probable options.
 
+<p align="center"><img src="docs/assets/exercise-preview.gif" alt="Preview alternating between a two-option dilemma illustrated with Moral Machine portraits and the Jev comparison screen" width="800"></p>
+
+<p align="center"><sub>Preview of one local test run. The character portraits are credited under CC BY 4.0; the cases and interface are original to this demo.</sub></p>
+
 ## The spirit of the exercise
 
 The point is to make difficult tradeoffs visible and discussable. You first make your own choices. Jev then evaluates the **same written dilemmas independently**, returning a probability distribution over A and B for each one. Seeing where your choices align, diverge, or meet an uncertain model response can prompt questions about wording, assumptions, action versus outcome, and the limits of a forced choice.
@@ -13,6 +17,14 @@ The format borrows the six comparison themes and 13-case session shape from the 
 **The cases are original to this repository.** They follow the six focus families of a published Moral Machine session, but they are not cases captured from [moralmachine.net](https://www.moralmachine.net/) and do not contain Moral Machine vote data. Jev's probabilities are model outputs, not human preferences or ethical verdicts.
 
 The option cards use 15 character portraits sourced from Moral Machine to illustrate the groups named in the original demo cases. The portraits are credited under the project's CC BY 4.0 notice and are separate from the MIT-licensed code. See [THIRD_PARTY_ASSETS.md](THIRD_PARTY_ASSETS.md) for sources, hashes, and the license scope.
+
+## What a completed run looks like
+
+1. Read a dilemma and select A or B. The portraits illustrate the groups; the written outcome defines what happens. [View the decision screen](docs/assets/decision-example.png).
+2. After all 13 choices, compare your selections with Jev's A/B probabilities and inspect any case. [View the result screen](docs/assets/result-example.png).
+3. Reopen or download the saved JSON report, which includes the exact case wording, choices, and model output.
+
+The preview comes from an **illustrative live OpenRouter run** in which the tester deliberately selected A in all 13 cases to exercise the UI. Jev's most probable option matched 4 of those choices, and the mean probability assigned to the selected options was 22% in that run. These values are one model response, not a finding about people or an ethical score; another run may differ. The test report JSON and any other local reports remain outside Git. [Preview provenance](docs/assets/README.md).
 
 ## Run locally
 
