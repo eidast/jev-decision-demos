@@ -6,7 +6,7 @@
 
 The demo asks: *How do one participant's choices in 13 hypothetical crash dilemmas compare with Jev's probability distribution over the same A/B outcomes?* The app shows the model distribution for each case and computes simple within-session summaries. It does not estimate public opinion, identify a morally correct action, or test an autonomous vehicle.
 
-The structure is inspired by the published [Moral Machine experiment](https://doi.org/10.1038/s41586-018-0637-6): two dilemmas focused on each of six character dimensions, plus one other dilemma in a 13-case session. The source experiment generates its cases from a large space and randomizes additional attributes. **This demo instead uses the fixed, original cases in `scenarios.js`**. No official scenario, image, user vote, or result was imported. See [Moral Machine background](../MoralMachine/README.md).
+The structure is inspired by the published [Moral Machine experiment](https://doi.org/10.1038/s41586-018-0637-6): two dilemmas focused on each of six character dimensions, plus one other dilemma in a 13-case session. The source experiment generates its cases from a large space and randomizes additional attributes. **This demo instead uses the fixed, original cases in `scenarios.js`**. No official scenario screenshot, user vote, or result was imported. Fifteen official character portraits illustrate the original cases and are attributed separately. See [Moral Machine background](../MoralMachine/README.md) and [asset provenance](../THIRD_PARTY_ASSETS.md).
 
 ## Participant protocol
 

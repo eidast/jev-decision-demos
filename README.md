@@ -2,6 +2,14 @@
 
 An independent, MIT-licensed web demo for exploring 13 hypothetical self-driving car dilemmas. A participant chooses one of two outcomes in each case. Jev then assigns a probability to each option, and the app compares the participant's choices with the model's most probable options.
 
+## The spirit of the exercise
+
+The point is to make difficult tradeoffs visible and discussable. You first make your own choices. Jev then evaluates the **same written dilemmas independently**, returning a probability distribution over A and B for each one. Seeing where your choices align, diverge, or meet an uncertain model response can prompt questions about wording, assumptions, action versus outcome, and the limits of a forced choice.
+
+This is an exercise in reflection, **not a test of who is morally right**. A match with Jev is not a correct answer. A model probability is neither the percentage of people who chose an option nor the likelihood of a real crash. The app offers no rule for autonomous vehicles and does not claim that demographic traits determine the value of a life.
+
+The format borrows the six comparison themes and 13-case session shape from the published Moral Machine experiment. Our cases are authored for this demo and remain fixed across runs. We do not use the study's participant votes, claim to replicate its findings, or infer public preferences from one person's session. Reports preserve the exact cases, selections, and model outputs so a run can be inspected later. See [the full protocol and limitations](docs/EXPERIMENT.md).
+
 **The cases are original to this repository.** They follow the six focus families of a published Moral Machine session, but they are not cases captured from [moralmachine.net](https://www.moralmachine.net/) and do not contain Moral Machine vote data. Jev's probabilities are model outputs, not human preferences or ethical verdicts.
 
 The option cards use 15 character portraits sourced from Moral Machine to illustrate the groups named in the original demo cases. The portraits are credited under the project's CC BY 4.0 notice and are separate from the MIT-licensed code. See [THIRD_PARTY_ASSETS.md](THIRD_PARTY_ASSETS.md) for sources, hashes, and the license scope.
