@@ -5,7 +5,7 @@ Two local exercises show how to use Jev's structured `choice` answers in differe
 | Demo | What it does | Documentation |
 | --- | --- | --- |
 | [Moral Machine × Jev](MoralMachine/README.md) | Compare a participant's choices in 13 original dilemmas with Jev's A/B probabilities. | [Protocol](MoralMachine/EXPERIMENT.md), [original study background](MoralMachine/ORIGINAL_STUDY.md), [asset credits](MoralMachine/THIRD_PARTY_ASSETS.md) |
-| [Tic Tac Toe × Jev](TicTacToe/README.md) | Play as X or O. Rules and minimax restrict candidate squares; Jev chooses the machine's final move. | [Technical design and logs](TicTacToe/TECHNICAL.md) |
+| [Tic Tac Toe × Jev](TicTacToe/README.md) | Play as X or O. Rules and minimax restrict candidate squares; Jev chooses the machine's final move. | [Visual guide](TicTacToe/docs/VISUAL_GUIDE.md), [technical design and logs](TicTacToe/TECHNICAL.md) |
 
 ## Run on macOS
 
