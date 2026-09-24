@@ -23,13 +23,35 @@ function portraitsHtml(ids) {
     `<img src="/MoralMachine/assets/moral-machine/${id}_passenger.svg" alt="" loading="lazy">`).join('');
 }
 
-function optionHtml(letter, outcome) {
+function roadGroupHtml(ids, description, status) {
+  return `<span class="road-group"><span class="road-people" aria-hidden="true">${portraitsHtml(ids)}</span><span class="road-status">${status}: ${escapeHtml(description)}</span></span>`;
+}
+
+function roadHtml(scenario, outcome) {
+  const stay = scenario.a.action === 'Stay on course' ? scenario.a : scenario.b;
+  const straight = stay.harmed;
+  const adjacent = stay.spared;
+  const swerving = outcome.action === 'Swerve';
+  const straightStatus = outcome.harmed === straight ? 'Killed' : 'Spared';
+  const adjacentStatus = outcome.harmed === adjacent ? 'Killed' : 'Spared';
+  const mixed = scenario.id === 'mixed-1';
+  return `<span class="road-scene${mixed ? ' road-scene-mixed' : ''}" aria-hidden="true">
+    <span class="road-lane road-lane-straight"><span class="lane-title">Current path</span>${roadGroupHtml(stay.visuals.harmed, straight, straightStatus)}</span>
+    <span class="road-lane road-lane-adjacent"><span class="lane-title">Adjacent path</span>${mixed
+      ? `<span class="road-barrier">Barrier</span><span class="road-status">${swerving ? 'Killed' : 'Spared'}: ${escapeHtml(adjacent)} in car</span>`
+      : roadGroupHtml(stay.visuals.spared, adjacent, adjacentStatus)}</span>
+    <span class="road-car">CAR${mixed ? `<span class="car-people">${portraitsHtml(stay.visuals.spared)}</span>` : ''}</span>
+    <svg class="road-route" viewBox="0 0 400 230" preserveAspectRatio="none" focusable="false" aria-hidden="true"><path d="${swerving ? 'M 100 200 C 100 145, 300 180, 300 120' : 'M 100 200 L 100 120'}"/><path class="route-head" d="${swerving ? 'M 292 132 L 300 120 L 308 132' : 'M 92 132 L 100 120 L 108 132'}"/></svg>
+  </span>`;
+}
+
+function optionHtml(letter, scenario) {
+  const outcome = scenario[letter];
   const selected = selections[current] === letter;
   return `<button class="option${selected ? ' selected' : ''}" type="button" data-option="${letter}" aria-pressed="${selected}">
     <span class="option-top"><span class="option-letter">${letter.toUpperCase()}</span><span class="option-action">${escapeHtml(outcome.action)}</span></span>
-    <span class="outcome-portraits" aria-hidden="true"><span class="portrait-group spared">${portraitsHtml(outcome.visuals?.spared)}</span><span class="portrait-arrow">│</span><span class="portrait-group harmed">${portraitsHtml(outcome.visuals?.harmed)}</span></span>
-    <strong>Spared: ${escapeHtml(outcome.spared)}</strong>
-    <span class="harm"><b>Killed:</b> ${escapeHtml(outcome.harmed)}</span>
+    ${roadHtml(scenario, outcome)}
+    <span class="outcome-text"><span><b>Killed:</b> ${escapeHtml(outcome.harmed)}</span><span><b>Spared:</b> ${escapeHtml(outcome.spared)}</span></span>
   </button>`;
 }
 
@@ -44,10 +66,10 @@ function renderScenario() {
   prevBtn.disabled = current === 0;
   nextBtn.disabled = !selections[current];
   nextBtn.textContent = current === scenarios.length - 1 ? 'See comparison →' : 'Next →';
-  card.innerHTML = `<div class="scenario-meta"><span class="family-pill">${escapeHtml(scenario.family)}</span><span class="scenario-place">${escapeHtml(scenario.setting)}</span></div>
+  card.innerHTML = `<div class="scenario-meta"><span class="scenario-place">${escapeHtml(scenario.setting)}</span></div>
     <h3>Scenario ${String(current + 1).padStart(2, '0')}</h3>
     <p class="scenario-description">${escapeHtml(scenario.premise)} Which outcome would you choose?</p>
-    <div class="option-grid" role="group" aria-label="Options for scenario ${current + 1}">${optionHtml('a', scenario.a)}${optionHtml('b', scenario.b)}</div>
+    <div class="option-grid" role="group" aria-label="Options for scenario ${current + 1}">${optionHtml('a', scenario)}${optionHtml('b', scenario)}</div>
     <p class="scenario-hint">Select an option to continue. You can go back and change your choice.</p>`;
   card.querySelectorAll('[data-option]').forEach((button) => {
     button.addEventListener('click', () => {
@@ -170,6 +192,12 @@ $('#restartBtn').addEventListener('click', () => {
 });
 
 async function init() {
+  if (location.protocol === 'file:') {
+    providerPill.textContent = 'SERVER REQUIRED';
+    $('.notice p').textContent = 'This file is a preview only. To use the 13-case exercise, run npm start in the repository and open the local URL printed in the terminal.';
+    card.innerHTML = '<div class="error-box" role="alert">This demo needs its local server to load scenarios and evaluate choices. Run <code>npm start</code> in the repository and open the URL printed in the terminal.</div>';
+    return;
+  }
   try {
     const response = await fetch('/api/scenarios');
     if (!response.ok) throw new Error('The scenarios could not be loaded.');

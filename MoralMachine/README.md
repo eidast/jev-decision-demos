@@ -2,9 +2,9 @@
 
 An independent, MIT-licensed web demo for exploring 13 hypothetical self-driving car dilemmas. A participant chooses one of two outcomes in each case. Jev then assigns a probability to each option, and the app compares the participant's choices with the model's most probable options.
 
-<p align="center"><img src="docs/assets/exercise-preview.gif" alt="Preview alternating between a two-option dilemma illustrated with Moral Machine portraits and the Jev comparison screen" width="800"></p>
+<p align="center"><img src="docs/assets/decision-example.png" alt="Two neutral road diagrams keep the groups fixed while the car's route and outcome labels change" width="800"></p>
 
-<p align="center"><sub>Preview of one local test run. The character portraits are credited under CC BY 4.0; the cases and interface are original to this demo.</sub></p>
+<p align="center"><sub>Local test capture. The character portraits are credited under CC BY 4.0; the cases and road diagrams are original to this demo.</sub></p>
 
 ## The spirit of the exercise
 
@@ -16,11 +16,11 @@ The format borrows the six comparison themes and 13-case session shape from the 
 
 **The cases are original to this repository.** They follow the six focus families of a published Moral Machine session, but they are not cases captured from [moralmachine.net](https://www.moralmachine.net/) and do not contain Moral Machine vote data. Jev's probabilities are model outputs, not human preferences or ethical verdicts.
 
-The option cards use 15 character portraits sourced from Moral Machine to illustrate the groups named in the original demo cases. The portraits are credited under the project's CC BY 4.0 notice and are separate from the MIT-licensed code. See [THIRD_PARTY_ASSETS.md](THIRD_PARTY_ASSETS.md) for sources, hashes, and the license scope.
+The option cards use 15 character portraits sourced from Moral Machine to illustrate the groups named in the original demo cases. An original gray road schematic keeps the groups in the same positions in both options and marks the car's route; text identifies who is killed and spared. The portraits are credited under the project's CC BY 4.0 notice and are separate from the MIT-licensed code. See [THIRD_PARTY_ASSETS.md](THIRD_PARTY_ASSETS.md) for sources, hashes, and the license scope.
 
 ## What a completed run looks like
 
-1. Read a dilemma and select A or B. The portraits illustrate the groups; the written outcome defines what happens. [View the decision screen](docs/assets/decision-example.png).
+1. Read a dilemma and select A or B. Compare the road routes and the explicit killed/spared labels; the written outcome defines what happens. [View the decision screen](docs/assets/decision-example.png).
 2. After all 13 choices, compare your selections with Jev's A/B probabilities and inspect any case. [View the result screen](docs/assets/result-example.png).
 3. Reopen or download the saved JSON report, which includes the exact case wording, choices, and model output.
 
@@ -65,7 +65,7 @@ chmod 600 .env
 npm start
 ```
 
-Open <http://127.0.0.1:3000/MoralMachine/>. If port 3000 is in use, run `PORT=3117 npm start` and open <http://127.0.0.1:3117>. The server binds to `127.0.0.1` by default. Without an API key, the app enters clearly labeled **sample mode**, whose probabilities are illustrative and do not come from Jev.
+Open <http://127.0.0.1:3000/MoralMachine/>. If port 3000 is in use, run `PORT=3117 npm start` and open <http://127.0.0.1:3117/MoralMachine/>. Open the server URL, not `public/index.html` as a `file://` page: the latter can show the styling but cannot load scenarios or evaluate choices. The server binds to `127.0.0.1` by default. Without an API key, the app enters clearly labeled **sample mode**, whose probabilities are illustrative and do not come from Jev.
 
 OpenRouter takes priority when both provider keys are set. The key is read only on the server. Never put it in client code, requests from the browser, documentation, or a commit. See [SECURITY.md](../SECURITY.md) for key handling and public deployment requirements.
 

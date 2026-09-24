@@ -160,6 +160,10 @@ const server = http.createServer(async (req, res) => {
       return json(res, 200, report);
     }
     if (req.method !== 'GET') return json(res, 405, { error: 'Method not allowed.' });
+    if (url.pathname === '/MoralMachine') {
+      res.writeHead(308, { Location: '/MoralMachine/' });
+      return res.end();
+    }
     const assetMatch = url.pathname.match(/^\/MoralMachine\/assets\/moral-machine\/([a-z]+_passenger\.svg)$/);
     if (assetMatch) {
       const file = join(root, 'MoralMachine', 'public', 'assets', 'moral-machine', assetMatch[1]);
